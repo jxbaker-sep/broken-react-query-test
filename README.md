@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+<!--
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+* Please fill out this template with all the relevant information so we can
+  understand what's going on and fix the issue. We appreciate bugs filed and PRs
+  submitted!
 
-## Available Scripts
+* Please make sure that you are familiar with and follow the Code of Conduct for
+  this project (found in the CODE_OF_CONDUCT.md file).
 
-In the project directory, you can run:
+* You can get the installed version of an NPM package by running `npm ls <insert package name>` in your terminal.
 
-### `npm start`
+-->
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- `react-hooks-testing-library` version: n/a, using React 18 and @testing-library/react 13.3
+- `react` version: 18.2
+- `react-dom` version (if applicable): 18.2
+- `react-test-renderer` version (if applicable): n/a
+- `node` version: v16.16.0
+- `npm` (or `yarn`) version: 8.11.0
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Relevant code or config:
 
-### `npm test`
+```js
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+test("useIasQuery", async () => {
+    function useCustomHook() {
+        return useQuery(['customHook'], () => 'Hello');
+    }
+    const queryClient = new QueryClient();
+    const wrapper = ({ children }) => (
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    );
 
-### `npm run build`
+    const { result } = renderHook(() => useCustomHook(), { wrapper });
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    await waitFor(() => result.current.isSuccess, {interval: 100});
+    expect(result.current.data).toEqual("Hello");
+});
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### What you did:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+I attempted to implement and run the example test for ReactQuery (https://tanstack.com/query/v4/docs/guides/testing), using React 18. Note that react-hooks-testing-library renderHooks has been rolled into @testing-library/react for React 18. Therefore, you will note one change in the above code from the example test provided: instead of using the `waitFor` method returned by renderHook, I am using the `waitFor` method defined in @testing-library/react.
 
-### `npm run eject`
+### What happened:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The test fails because `waitFor` times out.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Reproduction:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+`git clone git@github.com:jxbaker-sep/broken-react-query-test.git`
+`npm test`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Problem description:
 
-## Learn More
+We would like to write good tests for our ReactQuery app, but are unable to determine how to correctly write those tests with React 18.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Suggested solution:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Update ReactQuery docs to demonstrate functional testing with React 18.
